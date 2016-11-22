@@ -1,4 +1,18 @@
-var myApp = angular.module("myApp", []);
+var myApp = angular.module("myApp",  []);
+
+myApp.filter('unique', function() {
+
+ return function (arr, field) {
+   var o = {}, i, l = arr.length, r = [];
+   for(i=0; i<l;i+=1) {
+     o[arr[i][field]] = arr[i];
+   }
+   for(i in o) {
+     r.push(o[i]);
+   }
+   return r;
+ };
+})
 
 myApp.controller("BookController", ["$http", function($http) {
   console.log('running');
@@ -15,6 +29,10 @@ myApp.controller("BookController", ["$http", function($http) {
       .then(function(response) {
         console.log(response.data);
         self.books = response.data;
+        for (var i = 0; i < self.books.length; i++) {
+          self.books[i].published = new Date(self.books[i].published);
+          console.log(self.books[i].published);
+        }
       });
   }
 
@@ -32,80 +50,29 @@ myApp.controller("BookController", ["$http", function($http) {
     console.log(bookObj);
   }
 
+  self.deleteBook = function(bookObj) {
+    console.log('deletedelete');
+    var id = bookObj.id;
+    $http.delete('/books/' + id)
+      .then(function(response) {
+        console.log('Book deleted.');
+        getBooks();
+      });
+  }
+
+  self.updateBook = function(bookObj, index) {
+    var id = bookObj.id;
+    console.log(id);
+    $http.put('/books/' + id, self.books[index])
+      .then(function(response) {
+        console.log('PUT finished. Book updated.');
+        getBooks();
+      });
+  }
+
+
 }]);
 
-// $(document).ready(function () {
-//     getBooks();
-//
-//     // add a book
-//     $('#book-submit').on('click', postBook);
-//     // delete a book
-//     $("#book-list").on('click', '.delete', deleteBook);
-//     // update a book
-//     $("#book-list").on('click', '.update', updateBook);
-// });
-// /**
-//  * Retrieve books from server and append to DOM
-//  */
-// function getBooks() {
-//   $.ajax({
-//     type: 'GET',
-//     url: '/books',
-//     success: function(books) {
-//       appendBooks(books);
-//     },
-//     error: function() {
-//       console.log('Database error');
-//     }
-//
-//   })
-// }
-// /**
-//  * Add a new book to the database and refresh the DOM
-//  */
-// function postBook() {
-//   event.preventDefault();
-//
-//   var book = {};
-//
-//   $.each($('#book-form').serializeArray(), function (i, field) {
-//     book[field.name] = field.value;
-//   });
-//   // convert edition to integer
-//   book.edition = parseInt(book.edition);
-//
-//   console.log('book: ', book);
-//
-//   $.ajax({
-//     type: 'POST',
-//     url: '/books',
-//     data: book,
-//     success: function(response) {
-//       getBooks();
-//     },
-//     error: function() {
-//       console.log('could not post a new book');
-//     }
-//   })
-//
-// }
-//
-// function deleteBook() {
-//   var id = $(this).parent().data('id');
-//   console.log(id);
-//
-//   $.ajax({
-//     type: 'DELETE',
-//     url: '/books/' + id,
-//     success: function(result) {
-//       getBooks();
-//     },
-//     error: function(result) {
-//       console.log('could not delete book.');
-//     }
-//   });
-// }
-//
 // function updateBook() {
 //   var id = $(this).parent().data('id');
 //   console.log(id);
@@ -131,40 +98,4 @@ myApp.controller("BookController", ["$http", function($http) {
 //     }
 //   });
 //
-// }
-//
-// function appendBooks(books) {
-//   $("#book-list").empty();
-//
-//   for (var i = 0; i < books.length; i++) {
-//     $("#book-list").append('<div class="row book"></div>');
-//     $el = $('#book-list').children().last();
-//     var book = books[i];
-//     $el.data('id', book.id);
-//     console.log("Date from DB: ", book.published);
-//
-//     // convert the date
-//     // book.date = new Date(book.published);
-//     // var month = book.date.getUTCMonth(book.date) + 1; // number
-//     // var day = book.date.getUTCDate(book.date);
-//     // console.log('day', day);
-//     // var year = book.date.getUTCFullYear(book.date);
-//     // var convertedDate = book.date.toLocaleDateString();//month + '/' + day + '/' + year;
-//     // console.log(convertedDate);
-//
-//     var convertedDate = book.published.substr(0, 10);
-//     console.log(convertedDate);
-//
-//     $el.append('<input type="text" name="title" value="' + book.title + '" />');
-//     $el.append('<input type="text" name="author" value="' + book.author + '" />');
-//     $el.append('<input type="text" name="genre" value="' + book.genre + '" />');
-//     var newDate = $('<input type="date" name="published" />');
-//     newDate.val(convertedDate)
-//     $el.append(newDate);
-//     $el.append('<input type="number" name="edition" value="' + book.edition + '" />');
-//     $el.append('<input type="text" name="publisher" value="' + book.publisher + '" />');
-//
-//     $el.append('<button class="update">Update</button>');
-//     $el.append('<button class="delete">Delete</button>');
-//   }
 // }

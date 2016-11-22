@@ -45,13 +45,25 @@
           <input type="text" ng-model="bookController.newBook.publisher" name="publisher" class="form-control"/>
         </div>
 
-        <button class="btn btn-default" ng-click="bookController.addBook()">Go</button>
+        <button class="btn btn-primary" ng-click="bookController.addBook()">Go</button>
       </form>
 
       <h2>Books</h2>
-      <div class="book" ng-repeat="book in bookController.books">
-        <p>{{book.title}} By: {{book.author}}</p>
-        <button ng-click="bookController.clickMe(book)">Click Me</button>
+
+      <select class="form control col-md-12" ng-model="bookController.genreSelect" ng-options="book.genre for book in bookController.books | unique: 'genre'">
+        <!-- <option ng-repeat="genre in bookController.books | unique: {''}">{{genre.genre}}</option> -->
+
+      </select>
+      {{bookController.genreSelect}}
+      <div class="book" ng-repeat="book in bookController.books track by $index" | filter: 'book.genreSelect'>
+        <input type="text" name="title" ng-model="book.title" class="form-control"></p>
+        <input type="text" name="author" ng-model="book.author" class="form-control"></p>
+        <input type="date" name="published" ng-model="book.published" class="form-control"></p>
+        <input type="text" name="genre" ng-model="book.genre" class="form-control"></p>
+        <input type="number" name="edition" ng-model="book.edition" class="form-control"></p>
+        <input type="text" name="publisher" ng-model="book.publisher" class="form-control"></p>
+        <button class="btn btn-primary" ng-click="bookController.deleteBook(book, $index)">Delete this book!</button>
+        <button class="btn btn-primary" ng-click="bookController.updateBook(book, $index)">Update that book!</button>
       </div>
     </main>
 
